@@ -1,0 +1,120 @@
+function fea_n_stream
+n=input('speccify the number of streams:');
+e=input('specify the number of elements:');
+disp('press 1 for co-current,cross flow and 2 for counter flow')
+type=input('Specify the type of flow:');
+s=zeros(n,2*n);
+hc=zeros(n-1,n);
+mf=zeros(n,1);
+boundry_constant=zeros(n,1);
+
+for d=1:1:n
+    for g=d:1:n
+        if d==g
+            hc(d,g)=0;
+        else
+            hc(d,g)=input('specify the AK overall heat transfer coeff ak12 of streams:');
+            hc(g,d)=hc(d,g);
+        end
+        
+        
+    end
+    mf(d,1)=input('specify the m.cp(mass flow) from 1 to n:'); 
+    boundry_constant(d,1)=input('specify the boundry conditions in sequence:');
+    
+end
+
+for c=1:1:n
+    for p=1:1:n
+        if p==c 
+            s(c,p)=-mf(c,1)+(sum(hc(c,:))/(2*e));
+            s(c,p+n)=mf(c,1)+(sum(hc(c,:))/(2*e));
+        else
+            s(c,p)=-hc(c,p)/(2*e);
+            s(c,p+n)=-hc(c,p)/(2*e);
+        end
+    end
+end
+
+
+s;
+
+k=0;
+switch type
+    case type==1
+        
+        if e==1
+            global_stifnes=[s;eye(n,2*n)];
+            constant=[zeros((n*e),1);boundry_constant];
+            solution=inv(global_stifnes)*constant;
+        end
+
+        if e>1
+
+            for i=2:1:e
+                sg=[zeros(n,n*(i-1)) s zeros(n,(n*(e-1)-n*(i-1)))];
+                for j=1:n
+                    temp=sg(j,:);
+                        for l=k+1:k+n
+                            gs_f(k+1,:)=temp;
+                        end
+                    k=k+1;
+                end
+            end
+            g1=[s,zeros(n,n*(e-1))];
+            g3=[eye(n,n*(e+1))];
+            global_stifnes=[g1;gs_f;g3];
+            constant=[zeros((n*e),1);boundry_constant];
+            solution=inv(global_stifnes)*constant;
+        end
+
+
+        for y=n-1:-1:0
+            t_out_1(y+1,1)=solution((size(solution,1)-y),:);
+        end
+        for t=1:1:n
+            t_out(t,1)=t_out_1(n+1-t,:);
+        end
+        t_out
+        
+    otherwise
+        
+        if e==1
+            %global_stifnes=[s;1 zeros(1,4*(e+1)-1);zeros(1,4*(e+1)-3) 1 0 0;0 0 1 zeros(1,4*(e+1)-3);zeros(1,4*(e+1)-1) 1 ];
+            global_stifnes=[s;1 zeros(1,2*(e+1)-1);zeros(1,2*(e+1)-1) 1]; %for 2 streams
+            constant=[zeros((n*e),1);boundry_constant];
+            solution=inv(global_stifnes)*constant;
+        end
+
+        if e>1
+
+            for i=2:1:e
+                sg=[zeros(n,n*(i-1)) s zeros(n,(n*(e-1)-n*(i-1)))];
+                for j=1:1:n
+                    temp=sg(j,:);
+                        for l=k+1:1:k+n
+                            gs_f(k+1,:)=temp;
+                        end
+                    k=k+1;
+                end
+            end
+            g1=[s,zeros(n,n*(e-1))];
+            %g3=[1 zeros(1,4*(e+1)-1);zeros(1,4*(e+1)-3) 1 0 0;0 0 1 zeros(1,4*(e+1)-3);zeros(1,4*(e+1)-1) 1 ];
+            g3=[1 zeros(1,2*(e+1)-1);zeros(1,2*(e+1)-1) 1] ; % for 2 elements
+            global_stifnes=[g1;gs_f;g3];
+            constant=[zeros((n*e),1);boundry_constant];
+            solution=inv(global_stifnes)*constant;
+        end
+        for y=n-1:-1:0
+            t_in(y+1,1)=solution(y+1,:);
+            t_out_1(y+1,1)=solution((size(solution,1)-y),:);
+        end
+        for t=1:1:n
+            t_out(t,1)=t_out_1(n+1-t,:);
+        end
+        t_in
+        t_out
+
+
+end
+end

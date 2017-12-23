@@ -1,0 +1,22 @@
+function pressure_drop_2013dec
+format long
+k=[1 -1;-1 1];
+
+mf=0.0822; %input('Mass flow rate value : ');
+rho=1.583; %input('Density Value : ');
+f=714.25; %input('fin frequency : ');
+t=0.0002; %input('fin thickness value : ');
+h=0.0093; %input('fin hight value : ');
+deq=0.002125714; %input('Equalent diameter value : ');
+l=1;
+
+ak=[k zeros(2,2);zeros(2,2) k];
+det(ak)
+mfm=zeros(4,1);
+mfm(:)=mf;
+
+%pr_drop=zeros(2,1);
+R=(f*l*mf)/((1/f-2*t)^2*h^2*2*rho*deq);
+%pr_drop=R*inv(ak)*mfm
+
+end

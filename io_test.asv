@@ -1,0 +1,14 @@
+function[x,y]=io_test(u,v)
+a=u+v;
+b=u-v;
+function [w,z]=oi_test(x,y)
+w=x*10;
+z=y*10;
+end
+end
+
+
+
+
+
+

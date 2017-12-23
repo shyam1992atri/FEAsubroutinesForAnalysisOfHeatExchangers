@@ -1,0 +1,85 @@
+function oct_05_longitudinal
+n=2%input('give number of streams');
+e=2%input('number of elements');
+
+nh=1.8e-3;  %
+nc=0.9e-3;  %
+nu=1;
+mu=1;
+lamda=9.01e-5;  %
+alpha=0.003;    %
+r=3;
+ntu=15;     %
+k=[-.5+nh/3 -nh/3 0 .5+nh/6 -nh/6 0
+    nh/3 -nh/3-nc/(3*mu)-lamda*nu nc/(6*mu) nh/6 -nh/6-nc/(6*mu)+lamda*nu nc/(3*mu)
+
+
+
+
+
+   -.5+nh/6 -nh/6 0 .5+nh/3 -nh/3 0
+   
+   nh/6 -nh/6-nc/(6*mu)-lamda*nu nc/(3*mu) nh/3 -nh/3-nc/(3*mu)+lamda*nu nc/(6*mu)
+   0 nc/3 .5-nc/6-alpha*mu*nu*ntu/6 0 nc/6 -.5-nc/3-alpha*nu*mu*ntu/3
+   0 nc/6 .5-nc/3-alpha*mu*nu*ntu/3 0 nc/3 -.5-nc/6-alpha*nu*mu*ntu/6];%ones(2*(n+n-1));%zeros(2*(n+n-1));
+
+gc=zeros(2*(n+n-1)+(e-1)*(n+n-1));
+gc_temp=zeros(2*(n+n-1)+(e-1)*(n+n-1));
+
+row_s=1;
+col_s=1;
+
+row_e=2*(n+n-1);
+col_e=2*(n+n-1);
+
+% assembly loop
+
+for i=1:e
+
+    gc_temp(row_s:row_e,col_s:col_e)=k; % positions k in temp matrix
+    gc=gc_temp+gc;  % adds temp to stifness amtrix as both are of same size
+    gc_temp=zeros(2*(n+n-1)+(e-1)*(n+n-1));
+    
+    row_s=row_s+(n+n-1); % rol control variable
+    col_s=col_s+(n+n-1);
+
+    row_e=row_e+(n+n-1);
+    col_e=col_e+(n+n-1);
+
+    
+end
+
+% getting constants for 2 stream only
+
+c=zeros((2*(n+n-1)+(e-1)*(n+n-1)),1);
+c_temp=zeros(2*(n+n-1)+(e-1)*(n+n-1),1);
+r_s=1;
+
+r_e=2*(n+n-1);
+ck=[0 0 alpha*mu*nu*ntu*(r+1)*0.5 alpha*mu*nu*ntu*(r+1)*0.5 0 0]'
+
+for i=1:e
+
+    c_temp(r_s:r_e,1)=ck % positions k in temp matrix
+    c=c_temp+c  % adds temp to stifness amtrix as both are of same size
+    c_temp=zeros((2*(n+n-1)+(e-1)*(n+n-1)),1);
+    
+    r_s=r_s+(n+n-1); % rol control variable
+
+    r_e=r_e+(n+n-1);
+    
+
+    
+end
+
+gc(1,:)=zeros(1,2*(n+n-1)+(e-1)*(n+n-1));
+gc(1,1)=1;
+c(1,1)=1;
+gc(size(gc,1),:)=zeros(1,2*(n+n-1)+(e-1)*(n+n-1));
+gc(size(gc,1),size(gc,2))=1;
+c(size(c,1),1)=0;
+c
+gc
+sol=inv(gc)*c
+end
+
