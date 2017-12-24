@@ -1,4 +1,4 @@
-function fea_n_stream_type_free_dec_2013
+function fea_n_stream_aluminium
 % green terms represent comments
 % this programme solves for any number of heat exchangers say n
 % streams...The out put of this programme is the outlet temperature
@@ -13,31 +13,39 @@ disp('specify the m.cp value of counter flowing stream with a -ve value in count
 
 s=zeros(n,2*n);          % initialising the coeffecient matrix generated from the differential equations
 
-hc=zeros(n,n);         % this matrix is used to initialise the UA coeffecient terms that will be further used to generate the terms of diff eqn
+l_hc=zeros(n,1);
+
+hc=zeros(n-1,n);         % this matrix is used to initialise the UA coeffecient terms that will be further used to generate the terms of diff eqn
 
 mf=zeros(n,1);           % this matrix initialises the m.cp values of all the streams
 
 boundry_constant=zeros(n,1);     % This matrix initialisrs the boundry conditions specified in the problem
 
-for d=1:1:n             % loop to control the rows of UA
-    for g=d:1:n          % loop to control the columns
-        if d==g       
-            hc(d,g)=0;        % initialising UA11 and so on terms to zero 
-        else
-            fprintf('UA %d %d ',d,g)
-            hc(d,g)=input('specify overall heat transfer coeff of streams:');
-            hc(g,d)=hc(d,g);      % UA matrix is symetric about the principal Diagonal
-        end
-    
-    end
+for d=1:1:n
     
     fprintf('m.cp of stream %d ',d)
     mf(d,1)=input(' value:'); 
     
     fprintf('boundry temperatures in the problem of stream %d',d)
-    boundry_constant(d,1)=input(' value :');
+    boundry_constant(d,1)=input(' value:');
     
+    fprintf('local heat transfer coeff h %d',d);
+    l_hc(d,1)=input('value:');
 end
+
+for q=1:1:n
+    for w=q:1:n
+        if w==q
+            hc(q,w)=0;
+        else
+            hc(q,w)=(1/(1/(0.5*l_hc(q,1))+1/(0.5*l_hc(w,1))));
+            hc(w,q)=hc(q,w);
+        end
+        
+            
+
+end
+
 
 for c=1:1:n            % loop to control the rows of diff eqn matrix
     for p=1:1:n        % loop to control the columns of diff eqn matrix
